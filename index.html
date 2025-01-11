@@ -22,6 +22,7 @@
       width: 100%;
       height: 100%;
       background-color: black;
+      display: none;
       overflow: hidden;
     }
     #player {
@@ -64,9 +65,32 @@
     #end-message.lose {
       color: red;
     }
+    #start-screen {
+      text-align: center;
+    }
+    #start-button {
+      background-color: cyan;
+      color: black;
+      font-size: 20px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #start-button:hover {
+      background-color: #00bcd4;
+    }
   </style>
 </head>
 <body>
+  <!-- Pantalla de inicio -->
+  <div id="start-screen">
+    <h1>Minijuego: Evita los Obstáculos</h1>
+    <p>Sobrevive 30 segundos sin chocar con los obstáculos.</p>
+    <button id="start-button">Empezar</button>
+  </div>
+
+  <!-- Área del juego -->
   <div id="game-area">
     <div id="player"></div>
     <div id="timer">Tiempo: 30</div>
@@ -74,6 +98,8 @@
   </div>
 
   <script>
+    const startScreen = document.getElementById('start-screen');
+    const startButton = document.getElementById('start-button');
     const gameArea = document.getElementById('game-area');
     const player = document.getElementById('player');
     const timerDisplay = document.getElementById('timer');
@@ -83,6 +109,13 @@
     let gameInterval;
     let obstacleInterval;
     let isGameOver = false;
+
+    // Mostrar el área de juego y comenzar el juego
+    startButton.addEventListener('click', () => {
+      startScreen.style.display = 'none';
+      gameArea.style.display = 'block';
+      startGame();
+    });
 
     // Movimiento del jugador
     window.addEventListener('keydown', (e) => {
@@ -121,7 +154,7 @@
           return;
         }
 
-        const obstacleTop = obstacle.offsetTop + 5;
+        const obstacleTop = obstacle.offsetTop + 8; // Velocidad de caída más rápida
         obstacle.style.top = `${obstacleTop}px`;
 
         // Verificar colisión con el jugador
@@ -141,7 +174,13 @@
           obstacle.remove();
           clearInterval(fallInterval);
         }
-      }, 20); // Velocidad de actualización de movimiento
+      }, 20);
+    }
+
+    // Generar múltiples obstáculos
+    function generateObstacles() {
+      createObstacle();
+      setTimeout(createObstacle, 300); // Generar un obstáculo adicional tras 300ms
     }
 
     // Iniciar el juego
@@ -152,7 +191,7 @@
       isGameOver = false;
 
       // Inicia los intervalos
-      obstacleInterval = setInterval(createObstacle, 800); // Generar obstáculos cada 800 ms
+      obstacleInterval = setInterval(generateObstacles, 600); // Generar obstáculos cada 600ms
       gameInterval = setInterval(() => {
         timeLeft--;
         timerDisplay.textContent = `Tiempo: ${timeLeft}`;
@@ -184,9 +223,6 @@
         window.location.reload();
       }, 2000);
     }
-
-    // Iniciar automáticamente el juego
-    startGame();
   </script>
 </body>
 </html>
