@@ -3,25 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minijuego: Atrapando Estrellas</title>
+  <title>Minijuego: Evita los Obstáculos</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background-color: #000;
+      background-color: #222;
       color: white;
+      font-family: Arial, sans-serif;
       overflow: hidden;
     }
     #game-area {
       position: relative;
       width: 100%;
       height: 100%;
-      background-color: #222;
+      background-color: black;
       overflow: hidden;
     }
     #player {
@@ -29,24 +29,18 @@
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      width: 60px;
-      height: 20px;
-      background-color: white;
+      width: 40px;
+      height: 40px;
+      background-color: cyan;
       border-radius: 5px;
     }
-    .star {
+    .obstacle {
       position: absolute;
-      width: 20px;
-      height: 20px;
-      background-color: yellow;
-      border-radius: 50%;
-      box-shadow: 0 0 10px 2px yellow;
-    }
-    #score {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      font-size: 18px;
+      top: 0;
+      width: 40px;
+      height: 40px;
+      background-color: red;
+      border-radius: 5px;
     }
     #timer {
       position: fixed;
@@ -60,34 +54,40 @@
       left: 50%;
       transform: translate(-50%, -50%);
       font-size: 30px;
-      color: red;
+      color: white;
       text-align: center;
       display: none;
+    }
+    #end-message.win {
+      color: green;
+    }
+    #end-message.lose {
+      color: red;
     }
   </style>
 </head>
 <body>
   <div id="game-area">
     <div id="player"></div>
-    <div id="score">Puntaje: 0</div>
-    <div id="timer">Tiempo: 60</div>
-    <div id="end-message">¡HAS PERDIDO!</div>
+    <div id="timer">Tiempo: 30</div>
+    <div id="end-message"></div>
   </div>
 
   <script>
     const gameArea = document.getElementById('game-area');
     const player = document.getElementById('player');
-    const scoreDisplay = document.getElementById('score');
     const timerDisplay = document.getElementById('timer');
     const endMessage = document.getElementById('end-message');
 
-    let score = 0;
-    let timeLeft = 60;
+    let timeLeft = 30;
     let gameInterval;
-    let timerInterval;
+    let obstacleInterval;
+    let isGameOver = false;
 
     // Movimiento del jugador
     window.addEventListener('keydown', (e) => {
+      if (isGameOver) return;
+
       const step = 20;
       const gameWidth = gameArea.clientWidth;
 
@@ -104,39 +104,41 @@
       }
     });
 
-    // Crear una estrella que cae
-    function createStar() {
-      const star = document.createElement('div');
-      star.classList.add('star');
+    // Crear un obstáculo que cae
+    function createObstacle() {
+      const obstacle = document.createElement('div');
+      obstacle.classList.add('obstacle');
 
-      const x = Math.random() * (gameArea.clientWidth - 20);
-      star.style.left = `${x}px`;
-      star.style.top = '0px';
+      const x = Math.random() * (gameArea.clientWidth - 40);
+      obstacle.style.left = `${x}px`;
 
-      gameArea.appendChild(star);
+      gameArea.appendChild(obstacle);
 
       const fallInterval = setInterval(() => {
-        const starTop = star.offsetTop + 5; // Velocidad de caída
-        star.style.top = `${starTop}px`;
+        if (isGameOver) {
+          clearInterval(fallInterval);
+          obstacle.remove();
+          return;
+        }
+
+        const obstacleTop = obstacle.offsetTop + 5;
+        obstacle.style.top = `${obstacleTop}px`;
 
         // Verificar colisión con el jugador
-        const starRect = star.getBoundingClientRect();
+        const obstacleRect = obstacle.getBoundingClientRect();
         const playerRect = player.getBoundingClientRect();
 
         if (
-          starRect.bottom >= playerRect.top &&
-          starRect.left < playerRect.right &&
-          starRect.right > playerRect.left
+          obstacleRect.bottom >= playerRect.top &&
+          obstacleRect.left < playerRect.right &&
+          obstacleRect.right > playerRect.left
         ) {
-          score++;
-          scoreDisplay.textContent = `Puntaje: ${score}`;
-          star.remove();
-          clearInterval(fallInterval);
+          endGame(false);
         }
 
-        // Eliminar la estrella si llega al final de la pantalla
-        if (starTop > gameArea.clientHeight) {
-          star.remove();
+        // Eliminar el obstáculo si sale de la pantalla
+        if (obstacleTop > gameArea.clientHeight) {
+          obstacle.remove();
           clearInterval(fallInterval);
         }
       }, 20); // Velocidad de actualización de movimiento
@@ -144,38 +146,43 @@
 
     // Iniciar el juego
     function startGame() {
-      score = 0;
-      timeLeft = 60;
-      scoreDisplay.textContent = `Puntaje: ${score}`;
+      timeLeft = 30;
       timerDisplay.textContent = `Tiempo: ${timeLeft}`;
       endMessage.style.display = 'none';
+      isGameOver = false;
 
-      gameInterval = setInterval(createStar, 700); // Generar estrellas cada 700ms
-      timerInterval = setInterval(() => {
+      // Inicia los intervalos
+      obstacleInterval = setInterval(createObstacle, 800); // Generar obstáculos cada 800 ms
+      gameInterval = setInterval(() => {
         timeLeft--;
         timerDisplay.textContent = `Tiempo: ${timeLeft}`;
 
         if (timeLeft <= 0) {
-          endGame();
+          endGame(true);
         }
       }, 1000);
     }
 
     // Finalizar el juego
-    function endGame() {
+    function endGame(isWin) {
       clearInterval(gameInterval);
-      clearInterval(timerInterval);
+      clearInterval(obstacleInterval);
+      isGameOver = true;
 
-      if (score >= 15) {
-        alert(`¡Felicidades! Has ganado con ${score} puntos.`);
+      if (isWin) {
+        endMessage.textContent = '¡Felicidades! Has ganado.';
+        endMessage.className = 'win';
       } else {
-        endMessage.textContent = '¡HAS PERDIDO!';
-        endMessage.style.display = 'block';
-        setTimeout(() => {
-          alert(`¡Juego terminado! Tu puntaje final es: ${score}. Necesitas al menos 15 puntos para ganar.`);
-          window.location.reload(); // Reinicia el juego
-        }, 2000);
+        endMessage.textContent = '¡Has perdido! Chocaste con un obstáculo.';
+        endMessage.className = 'lose';
       }
+
+      endMessage.style.display = 'block';
+
+      setTimeout(() => {
+        alert('Presiona OK para reiniciar el juego.');
+        window.location.reload();
+      }, 2000);
     }
 
     // Iniciar automáticamente el juego
