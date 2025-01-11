@@ -30,9 +30,9 @@
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      width: 40px;
-      height: 40px;
-      background-color: cyan;
+      width: 60px;
+      height: 60px;
+      background-color: yellow;
       border-radius: 5px;
     }
     .obstacle {
@@ -105,7 +105,7 @@
     const timerDisplay = document.getElementById('timer');
     const endMessage = document.getElementById('end-message');
 
-    let timeLeft = 30;
+    let timeLeft = 60;
     let gameInterval;
     let obstacleInterval;
     let isGameOver = false;
@@ -180,12 +180,12 @@
     // Generar múltiples obstáculos
     function generateObstacles() {
       createObstacle();
-      setTimeout(createObstacle, 300); // Generar un obstáculo adicional tras 300ms
+      setTimeout(createObstacle, 150); // Generar un obstáculo adicional tras 300ms
     }
 
     // Iniciar el juego
     function startGame() {
-      timeLeft = 30;
+      timeLeft = 60;
       timerDisplay.textContent = `Tiempo: ${timeLeft}`;
       endMessage.style.display = 'none';
       isGameOver = false;
