@@ -154,7 +154,7 @@
           return;
         }
 
-        const obstacleTop = obstacle.offsetTop + 10; // Velocidad de caída más rápida
+        const obstacleTop = obstacle.offsetTop + 100; // Velocidad de caída más rápida
         obstacle.style.top = `${obstacleTop}px`;
 
         // Verificar colisión con el jugador
@@ -180,7 +180,7 @@
     // Generar múltiples obstáculos
     function generateObstacles() {
       createObstacle();
-      setTimeout(createObstacle, 80); // Generar un obstáculo adicional tras 300ms
+      setTimeout(createObstacle, 100); // Generar un obstáculo adicional tras 300ms
     }
 
     // Iniciar el juego
@@ -191,7 +191,7 @@
       isGameOver = false;
 
       // Inicia los intervalos
-      obstacleInterval = setInterval(generateObstacles, 200); // Generar obstáculos cada 600ms
+      obstacleInterval = setInterval(generateObstacles, 500); // Generar obstáculos cada 600ms
       gameInterval = setInterval(() => {
         timeLeft--;
         timerDisplay.textContent = `Tiempo: ${timeLeft}`;
