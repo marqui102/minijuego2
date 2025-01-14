@@ -180,12 +180,12 @@
     // Generar múltiples obstáculos
     function generateObstacles() {
       createObstacle();
-      setTimeout(createObstacle, 100); // Generar un obstáculo adicional tras 300ms
+      setTimeout(createObstacle, 1000); // Generar un obstáculo adicional tras 300ms
     }
 
     // Iniciar el juego
     function startGame() {
-      timeLeft = 60;
+      timeLeft = 30;
       timerDisplay.textContent = `Tiempo: ${timeLeft}`;
       endMessage.style.display = 'none';
       isGameOver = false;
